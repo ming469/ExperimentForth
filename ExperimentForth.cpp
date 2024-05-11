@@ -2,7 +2,75 @@
 #include <cstdlib>
 
 using namespace std;
+# define MAXSIZE 100
 
+//循环队列的定义
+typedef struct SqQueue
+{
+    int* base;
+    int front;
+    int rear;
+}SqQueue;
+//队列的初始化
+void InitQueue(SqQueue& Q) {
+    Q.base = new int[MAXSIZE];
+    Q.front = Q.rear = 0;
+}
+
+//销毁队列
+void  DestroyQueue(SqQueue& Q) {
+    //销毁队列Q
+    if (Q.base)
+        delete[]Q.base;
+    Q.base = NULL;
+    Q.front = Q.rear=0;
+    
+}
+
+//判断链队列是否为空
+bool QueueEmpty(SqQueue& Q) {
+    if (Q.front == Q.rear)
+        return 1;
+    else return 0;
+}
+
+//求队列的队头元素
+int GetHead(SqQueue Q) {
+    if (Q.front != Q.rear)
+        return Q.base[Q.front];
+    else cout << "队列为空" << endl;
+}
+
+//入队操作
+void EnQueue(SqQueue& Q, int e) {
+    //插入元素e为Q的新的队列尾元素
+   //如果队列满了，就显示报错
+    if ((Q.rear + 1) % MAXSIZE == Q.front)
+        cout << "队列已经满了，无法插入元素" << endl;
+    //如果队列未满，那么存入数据，然后长度加一
+    Q.base[Q.rear] = e;
+    Q.rear = (Q.rear + 1) % MAXSIZE;
+}
+
+//出队操作
+int DeQueue(SqQueue& Q, int& e) {
+    if (Q.front == Q.rear)
+    {
+        cout << "队列为空" << endl;
+        return 0;
+    }
+    else
+    {
+        e = Q.base[Q.front];
+        Q.front = (Q.front + 1) % MAXSIZE;
+        return e;
+    }
+}
+
+int Count(SqQueue& Q)
+{
+    return (Q.rear - Q.front + MAXSIZE)%MAXSIZE;
+}
 void show_help()
 {
     cout << "******* Data Structure ******" << endl;
@@ -11,73 +79,9 @@ void show_help()
     cout << " 3----------入队操作" << endl;
     cout << " 4----------出队操作" << endl;
     cout << " 5----------销毁队列" << endl;
+    cout << " 6----------初始化队列" << endl;
+    cout << " 7----------队列长度" << endl;
     cout << "    退出，输入0" << endl;
-}
-
-//#define  MAXSIZE    100;
-
-//typedef int stackSize;
-typedef int QElemType;
-
-typedef struct QNode {
-    QElemType data;
-    struct QNode* next;
-}QNode, * QueuePtr;
-
-//队列的链式存储结构
-typedef struct {
-    QueuePtr  front;  // 队头指针
-    QueuePtr  rear;   // 队尾指针
-}LinkQueue;           // 链队列
-
-//队列的初始化
-void InitQueue(LinkQueue& Q) {
-    // 构造一个空队列 Q
-    Q.front = Q.rear = new QNode;
-    Q.front->next = NULL;
-}
-
-//销毁队列
-void  DestroyQueue(LinkQueue& Q) {
-    //销毁队列Q
-    while (Q.front) {
-        Q.rear = Q.front->next;
-        delete Q.front;
-        Q.front = Q.rear;
-    }
-}
-
-//判断链队列是否为空
-bool QueueEmpty(LinkQueue Q) {
-    return Q.front == Q.rear;
-}
-
-//求队列的队头元素
-int GetHead(LinkQueue Q, QElemType& e) {
-    if (Q.front == Q.rear) return 0;
-    e = Q.front->next->data;
-    return 1;
-}
-
-//入队操作
-void EnQueue(LinkQueue& Q, QElemType  e) {
-    //插入元素e为Q的新的队列尾元素
-    QueuePtr p = new QNode;
-    p->data = e;
-    p->next = NULL;
-    Q.rear->next = p;  // 修改尾结点的指针
-    Q.rear = p;        // 移动队尾指针
-}
-
-//出队操作
-int DeQueue(LinkQueue& Q, QElemType& e) {
-    // 若队列不空，则删除Q的队头元素，用e返回其值,并返回1；否则返回-1
-    if (Q.front == Q.rear)   return 0; // 队列为空
-    QueuePtr p = Q.front->next; e = p->data;      // 返回被删元素
-    Q.front->next = p->next;            // 修改头结点指针
-    if (Q.rear == p)   Q.rear = Q.front;
-    delete p;                           // 释放被删结点
-    return 1;
 }
 
 int main()
@@ -85,8 +89,8 @@ int main()
     char operate_code;
     show_help();
 
-    LinkQueue Q;
-    InitQueue(Q);
+    SqQueue Q;
+   
 
     while (1)
     {
@@ -94,19 +98,16 @@ int main()
         cin >> operate_code;
         if (operate_code == '1')
         {
-            if (QueueEmpty(Q)) {
-                cout << "该队列为空" << endl;
-            }
-            else {
-                cout << "该队列为非空" << endl;
-            }
+            if (QueueEmpty(Q) == 1)
+                cout << "队列为空" << endl;
+            else cout << "队列非空" << endl;
         }
         else if (operate_code == '2')
         {
-            QElemType e;
-            if (GetHead(Q, e)) {
+            
+            if (GetHead(Q)) {
                 cout << "该队列的头元素为：";
-                cout << e << endl;
+                cout << GetHead(Q)<< endl;
             }
             else {
                 cout << "操作不合法" << endl;
@@ -114,7 +115,7 @@ int main()
         }
         else if (operate_code == '3')
         {
-            QElemType e;
+            int e;
             cout << "请输入想要入队的元素：";
             cin >> e;
             EnQueue(Q, e);
@@ -122,7 +123,7 @@ int main()
         }
         else if (operate_code == '4')
         {
-            QElemType e;
+            int e;
             if (DeQueue(Q, e)) {
                 cout << "出队成功，该元素为：" << e << endl;
             }
@@ -134,6 +135,14 @@ int main()
         {
             DestroyQueue(Q);
             cout << "该队列已被销毁" << endl;
+        }
+        else if (operate_code == '6')
+        {
+            InitQueue(Q);
+        }
+        else if (operate_code == '7')
+        {
+            cout << Count(Q)<<endl;
         }
         else if (operate_code == '0')
         {
