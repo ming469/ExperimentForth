@@ -1,3 +1,6 @@
+//2212080239 董其昌
+//循环队列
+
 #include <iostream>
 #include <cstdlib>
 
@@ -7,6 +10,7 @@ using namespace std;
 //循环队列的定义
 typedef struct SqQueue
 {
+
     int* base;
     int front;
     int rear;
